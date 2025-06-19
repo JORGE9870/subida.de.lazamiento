@@ -48,8 +48,8 @@ Página de contador regresivo para el lanzamiento de **VIP Scorts**, la platafor
 
 1. **Clona el repositorio:**
    ```bash
-   git clone https://github.com/tu-usuario/vip-scorts-countdown.git
-   cd vip-scorts-countdown
+   git clone https://github.com/JORGE9870/subida.de.lazamiento.git
+   cd subida.de.lazamiento
    ```
 
 2. **Instala las dependencias:**
@@ -76,7 +76,7 @@ npm run build
 ## 📂 Estructura del Proyecto
 
 ```
-vip-scorts-countdown/
+subida.de.lazamiento/
 ├── public/
 │   └── index.html
 ├── src/
@@ -189,4 +189,4 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 <div align="center">
   <h3>🌟 ¡Prepárate para la experiencia VIP más exclusiva! 🌟</h3>
   <p><strong>VIP Scorts</strong> - Donde la elegancia se encuentra con la exclusividad</p>
-</div> 
+</div>
