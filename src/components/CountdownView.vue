@@ -125,9 +125,27 @@ export default {
         })
         const totalHoursLeft = ref(480)
 
-        // Calcular tiempo inicial (480 horas desde ahora)
-        const targetDate = new Date()
-        targetDate.setHours(targetDate.getHours() + 480)
+        // Función para obtener o crear la fecha objetivo
+        const getTargetDate = () => {
+            const savedTargetDate = localStorage.getItem('countdownTargetDate')
+            
+            if (savedTargetDate) {
+                // Si ya existe una fecha guardada, usarla
+                return new Date(parseInt(savedTargetDate))
+            } else {
+                // Si no existe, crear una nueva fecha (480 horas desde ahora)
+                const newTargetDate = new Date()
+                newTargetDate.setHours(newTargetDate.getHours() + 480)
+                
+                // Guardar la fecha en localStorage
+                localStorage.setItem('countdownTargetDate', newTargetDate.getTime().toString())
+                
+                return newTargetDate
+            }
+        }
+
+        // Obtener la fecha objetivo
+        const targetDate = getTargetDate()
 
         let countdownInterval = null
 
