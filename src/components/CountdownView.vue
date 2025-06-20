@@ -30,7 +30,7 @@
                 <div class="launch-icon">
                     <i class="fas fa-rocket"></i>
                 </div>
-                <h2 class="launch-title">¡PRÓXIMO LANZAMIENTO!</h2>
+                <h2 class="launch-title">¡LANZAMIENTO!</h2>
                 <p class="launch-description">
                     Estamos preparando algo extraordinario para ti. La experiencia VIP más exclusiva está a punto de
                     llegar.
