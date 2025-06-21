@@ -125,27 +125,19 @@ export default {
         })
         const totalHoursLeft = ref(480)
 
-        // Función para obtener o crear la fecha objetivo
-        const getTargetDate = () => {
-            const savedTargetDate = localStorage.getItem('countdownTargetDate')
-            
-            if (savedTargetDate) {
-                // Si ya existe una fecha guardada, usarla
-                return new Date(parseInt(savedTargetDate))
-            } else {
-                // Si no existe, crear una nueva fecha (480 horas desde ahora)
-                const newTargetDate = new Date()
-                newTargetDate.setHours(newTargetDate.getHours() + 480)
-                
-                // Guardar la fecha en localStorage
-                localStorage.setItem('countdownTargetDate', newTargetDate.getTime().toString())
-                
-                return newTargetDate
-            }
+        // Calcular o recuperar la fecha objetivo del countdown
+        let targetDate
+        const savedTargetDate = localStorage.getItem('vip-scorts-countdown-target')
+        
+        if (savedTargetDate) {
+            // Si ya existe una fecha guardada, usarla
+            targetDate = new Date(savedTargetDate)
+        } else {
+            // Si no existe, calcular nueva fecha (480 horas desde ahora) y guardarla
+            targetDate = new Date()
+            targetDate.setHours(targetDate.getHours() + 480)
+            localStorage.setItem('vip-scorts-countdown-target', targetDate.toISOString())
         }
-
-        // Obtener la fecha objetivo
-        const targetDate = getTargetDate()
 
         let countdownInterval = null
 
@@ -216,15 +208,72 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&display=swap');
 
+/* Estilos globales responsive */
+* {
+    box-sizing: border-box;
+}
+
+/* Prevenir overflow horizontal */
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Mejoras para todos los dispositivos */
+body {
+    font-family: 'Cinzel', serif;
+    background: #000;
+}
+
+/* Prevenir zoom en inputs en iOS */
+input, select, textarea {
+    font-size: 16px;
+}
+
+/* Smooth scrolling para mejor UX */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Mejoras para touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .time-block:hover,
+    .feature-card:hover,
+    .featured-ad:hover {
+        transform: none;
+    }
+    
+    .time-block:active,
+    .feature-card:active {
+        transform: scale(0.98);
+    }
+}
+
+@media (max-width: 768px) {
+    input, select, textarea {
+        font-size: 16px;
+    }
+    
+    /* Mejorar el tap target size para móviles */
+    .time-block {
+        min-height: 44px;
+    }
+}
+
 .countdown-container {
     min-height: 100vh;
     position: relative;
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%);
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .countdown-container::before {
@@ -303,6 +352,8 @@ export default {
     padding: 2rem;
     max-width: 1200px;
     width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .main-title {
@@ -630,67 +681,487 @@ export default {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-    .main-title h1 {
-        font-size: 2.5rem;
-        flex-direction: column;
-        gap: 1rem;
-    }
 
-    .countdown-display {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .time-block {
-        min-width: 100px;
-        padding: 1rem 0.5rem;
-    }
-
-    .time-number {
-        font-size: 2rem;
-    }
-
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
-
+/* Pantallas ultra-anchas (monitores grandes) */
+@media (min-width: 1400px) {
     .main-content {
-        padding: 1rem;
+        max-width: 1400px;
     }
-
+    
+    .main-title h1 {
+        font-size: 5rem;
+        letter-spacing: 5px;
+    }
+    
+    .launch-title {
+        font-size: 3rem;
+    }
+    
     .countdown-main {
-        padding: 2rem 1rem;
+        padding: 4rem;
     }
-
-    .logo-img {
-        width: 20rem;
+    
+    .time-number {
+        font-size: 3.5rem;
+    }
+    
+    .hours-number {
+        font-size: 3rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 1300px;
     }
 }
 
-@media (max-width: 480px) {
+/* Escritorio estándar */
+@media (min-width: 1200px) and (max-width: 1399px) {
     .main-title h1 {
-        font-size: 2rem;
+        font-size: 4.5rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Tablets grandes */
+@media (max-width: 1024px) {
+    .main-title h1 {
+        font-size: 3.5rem;
+        letter-spacing: 3px;
+    }
+
+    .countdown-main {
+        padding: 2.5rem 2rem;
+    }
+
+    .launch-title {
+        font-size: 2.2rem;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .time-block {
+        min-width: 110px;
+        padding: 1.3rem 0.8rem;
+    }
+
+    .time-number {
+        font-size: 2.5rem;
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+    .main-title h1 {
+        font-size: 2.8rem;
+        flex-direction: column;
+        gap: 1rem;
+        letter-spacing: 2px;
+    }
+
+    .diamond-left img,
+    .diamond-right img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .subtitle {
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+    }
+
+    .launch-message {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
     }
 
     .launch-title {
         font-size: 2rem;
     }
 
+    .launch-description {
+        font-size: 1rem;
+    }
+
+    .countdown-display {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        justify-content: center;
+    }
+
+    .time-block {
+        min-width: 100px;
+        padding: 1.2rem 0.8rem;
+        flex: 1;
+        max-width: 120px;
+    }
+
     .time-number {
+        font-size: 2.2rem;
+    }
+
+    .time-separator {
+        font-size: 2rem;
+        display: none; /* Ocultar separadores en móvil para mejor diseño */
+    }
+
+    .countdown-main {
+        padding: 2rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .countdown-label h3 {
         font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .feature-card {
+        padding: 1.8rem;
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+
+    .hours-number {
+        font-size: 2rem;
+    }
+
+    .hours-text {
+        font-size: 1rem;
+    }
+}
+
+/* Móviles grandes */
+@media (max-width: 600px) {
+    .main-title h1 {
+        font-size: 2.2rem;
+        gap: 0.8rem;
+    }
+
+    .diamond-left img,
+    .diamond-right img {
+        width: 25px;
+        height: 25px;
+    }
+
+    .launch-icon i {
+        font-size: 2.5rem;
+    }
+
+    .launch-title {
+        font-size: 1.8rem;
+    }
+
+    .launch-description {
+        font-size: 0.95rem;
+    }
+
+    .countdown-display {
+        gap: 0.6rem;
+    }
+
+    .time-block {
+        min-width: 80px;
+        padding: 1rem 0.6rem;
+        max-width: 100px;
+    }
+
+    .time-number {
+        font-size: 1.8rem;
+    }
+
+    .time-label {
+        font-size: 0.8rem;
+        letter-spacing: 1px;
     }
 
     .countdown-label h3 {
         font-size: 1.3rem;
     }
 
+    .hours-number {
+        font-size: 1.8rem;
+    }
+
+    .hours-text {
+        font-size: 0.95rem;
+    }
+
     .feature-card {
         padding: 1.5rem;
     }
 
-    .logo-img {
-        width: 15rem;
+    .feature-card i {
+        font-size: 2rem;
+    }
+
+    .feature-card h4 {
+        font-size: 1.1rem;
+    }
+
+    .feature-card p {
+        font-size: 0.9rem;
+    }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+    .countdown-container {
+        padding: 1rem 0;
+    }
+
+    .main-title {
+        margin-bottom: 2rem;
+    }
+
+    .main-title h1 {
+        font-size: 1.8rem;
+        gap: 0.5rem;
+        line-height: 1.2;
+    }
+
+    .vip-text {
+        display: block;
+        margin: 0.5rem 0;
+    }
+
+    .diamond-left,
+    .diamond-right {
+        display: none; /* Ocultar diamantes en pantallas muy pequeñas */
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        line-height: 1.4;
+    }
+
+    .launch-message {
+        padding: 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .launch-title {
+        font-size: 1.6rem;
+        line-height: 1.2;
+    }
+
+    .launch-description {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .countdown-main {
+        padding: 1.5rem 1rem;
+    }
+
+    .countdown-display {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .time-block {
+        min-width: 120px;
+        max-width: 150px;
+        padding: 1rem;
+        margin: 0 auto;
+    }
+
+    .time-number {
+        font-size: 1.6rem;
+    }
+
+    .time-label {
+        font-size: 0.75rem;
+    }
+
+    .countdown-label h3 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+
+    .total-hours {
+        padding: 1rem;
+    }
+
+    .hours-display {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .hours-number {
+        font-size: 1.5rem;
+    }
+
+    .hours-text {
+        font-size: 0.9rem;
+    }
+
+    .features-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .feature-card {
+        padding: 1.2rem;
+    }
+
+    .feature-card i {
+        font-size: 1.8rem;
+    }
+
+    .feature-card h4 {
+        font-size: 1rem;
+    }
+
+    .feature-card p {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .main-content {
+        padding: 0.5rem;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+    .main-title h1 {
+        font-size: 1.5rem;
+    }
+
+    .launch-title {
+        font-size: 1.4rem;
+    }
+
+    .countdown-label h3 {
+        font-size: 1rem;
+    }
+
+    .time-block {
+        min-width: 100px;
+        max-width: 120px;
+        padding: 0.8rem;
+    }
+
+    .time-number {
+        font-size: 1.4rem;
+    }
+
+    .time-label {
+        font-size: 0.7rem;
+    }
+
+    .hours-number {
+        font-size: 1.3rem;
+    }
+
+    .hours-text {
+        font-size: 0.8rem;
+    }
+
+    .features-title {
+        font-size: 1.3rem;
+    }
+
+    .feature-card {
+        padding: 1rem;
+    }
+
+    .feature-card i {
+        font-size: 1.6rem;
+    }
+
+    .feature-card h4 {
+        font-size: 0.95rem;
+    }
+
+    .feature-card p {
+        font-size: 0.8rem;
+    }
+}
+
+/* Pantallas de alta densidad (Retina, etc.) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .time-number,
+    .hours-number,
+    .main-title h1 {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .countdown-container::before {
+        will-change: transform;
+    }
+    
+    .floating-element {
+        will-change: transform;
+    }
+}
+
+/* Preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .countdown-container::before,
+    .floating-element {
+        animation: none !important;
+    }
+}
+
+/* Modo landscape en móviles */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+    .main-title {
+        margin-bottom: 2rem;
+    }
+    
+    .main-title h1 {
+        font-size: 2rem;
+    }
+    
+    .countdown-main {
+        padding: 1.5rem;
+    }
+    
+    .countdown-display {
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+    
+    .time-block {
+        min-width: 70px;
+        padding: 0.8rem 0.4rem;
+    }
+    
+    .time-number {
+        font-size: 1.4rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .feature-card {
+        padding: 1rem;
     }
 }
 </style>
