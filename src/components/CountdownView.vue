@@ -1,5 +1,36 @@
 <template>
     <div class="countdown-container">
+        <!-- Audio de fondo -->
+        <audio 
+            ref="backgroundMusic" 
+            loop 
+            autoplay
+            muted="false"
+            preload="auto"
+            @canplay="handleAudioCanPlay"
+            @loadeddata="handleAudioLoaded"
+            @error="handleAudioError"
+        >
+            <source src="@/assets/Download_163_.mp3" type="audio/mpeg">
+            Tu navegador no soporta audio HTML5.
+        </audio>
+
+        <!-- Control de audio -->
+        <div class="audio-control" @click="toggleAudio">
+            <i :class="isAudioPlaying ? 'fas fa-volume-up' : 'fas fa-volume-mute'"></i>
+        </div>
+
+        <!-- Notificación de audio (se muestra brevemente) -->
+        <div v-if="!isAudioPlaying" class="audio-notification">
+            <div class="audio-notification-content">
+                <i class="fas fa-music"></i>
+                <p>¡Activa el audio para una mejor experiencia!</p>
+                <button @click="toggleAudio" class="audio-enable-btn">
+                    <i class="fas fa-volume-up"></i> Activar Música
+                </button>
+            </div>
+        </div>
+
         <!-- Fondo animado -->
         <div class="animated-background">
             <div class="floating-element" v-for="n in 6" :key="n" :style="getRandomPosition()"></div>
@@ -124,6 +155,11 @@ export default {
             seconds: 0
         })
         const totalHoursLeft = ref(480)
+        
+        // Referencias para el audio
+        const backgroundMusic = ref(null)
+        const isAudioPlaying = ref(false)
+        const audioVolume = ref(0.3) // Volumen al 30%
 
         // Calcular o recuperar la fecha objetivo del countdown
         let targetDate
@@ -182,24 +218,118 @@ export default {
             }
         }
 
+        // Funciones para el audio
+        const playBackgroundMusic = async () => {
+            if (backgroundMusic.value) {
+                try {
+                    backgroundMusic.value.volume = audioVolume.value
+                    await backgroundMusic.value.play()
+                    isAudioPlaying.value = true
+                    console.log('Música de fondo iniciada')
+                } catch (error) {
+                    console.log('No se pudo reproducir automáticamente:', error.message)
+                    isAudioPlaying.value = false
+                }
+            }
+        }
+
+        const toggleAudio = async () => {
+            if (!backgroundMusic.value) return
+
+            try {
+                if (isAudioPlaying.value) {
+                    backgroundMusic.value.pause()
+                    isAudioPlaying.value = false
+                } else {
+                    backgroundMusic.value.volume = audioVolume.value
+                    await backgroundMusic.value.play()
+                    isAudioPlaying.value = true
+                }
+            } catch (error) {
+                console.log('Error al controlar audio:', error.message)
+            }
+        }
+
+        const handleAudioCanPlay = () => {
+            console.log('Audio listo para reproducir')
+            // Intentar reproducir inmediatamente cuando el audio esté listo
+            playBackgroundMusic()
+        }
+
+        const handleAudioLoaded = () => {
+            console.log('Audio cargado completamente')
+            // Intentar reproducir cuando los datos estén cargados
+            setTimeout(() => {
+                playBackgroundMusic()
+            }, 100)
+        }
+
+        const handleAudioError = (error) => {
+            console.error('Error cargando audio:', error)
+        }
+
+        // Intentar reproducir cuando el usuario interactúe con la página
+        const handleUserInteraction = () => {
+            if (!isAudioPlaying.value && backgroundMusic.value) {
+                playBackgroundMusic()
+            }
+        }
+
         onMounted(() => {
             // Actualizar el contador inmediatamente
             updateCountdown()
 
             // Actualizar cada segundo
             countdownInterval = setInterval(updateCountdown, 1000)
+
+            // Intentar reproducir audio inmediatamente
+            setTimeout(() => {
+                playBackgroundMusic()
+            }, 500)
+
+            // Intentar de nuevo después de un poco más de tiempo
+            setTimeout(() => {
+                if (!isAudioPlaying.value) {
+                    playBackgroundMusic()
+                }
+            }, 2000)
+
+            // Agregar listeners para interacción del usuario (como respaldo)
+            document.addEventListener('click', handleUserInteraction, { once: true })
+            document.addEventListener('keydown', handleUserInteraction, { once: true })
+            document.addEventListener('touchstart', handleUserInteraction, { once: true })
+            document.addEventListener('mousemove', handleUserInteraction, { once: true })
+            document.addEventListener('scroll', handleUserInteraction, { once: true })
         })
 
         onUnmounted(() => {
             if (countdownInterval) {
                 clearInterval(countdownInterval)
             }
+            
+            // Limpiar event listeners
+            document.removeEventListener('click', handleUserInteraction)
+            document.removeEventListener('keydown', handleUserInteraction)
+            document.removeEventListener('touchstart', handleUserInteraction)
+            document.removeEventListener('mousemove', handleUserInteraction)
+            document.removeEventListener('scroll', handleUserInteraction)
+            
+            // Pausar audio
+            if (backgroundMusic.value) {
+                backgroundMusic.value.pause()
+            }
         })
 
         return {
             timeLeft,
             totalHoursLeft,
-            getRandomPosition
+            getRandomPosition,
+            backgroundMusic,
+            isAudioPlaying,
+            toggleAudio,
+            handleAudioCanPlay,
+            handleAudioLoaded,
+            handleAudioError
         }
     }
 }
@@ -274,6 +404,160 @@ html {
     align-items: center;
     width: 100%;
     box-sizing: border-box;
+}
+
+/* Control de audio */
+.audio-control {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 31, 143, 0.8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 31, 143, 0.4);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.audio-control:hover {
+    background: rgba(255, 31, 143, 1);
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(255, 31, 143, 0.6);
+}
+
+.audio-control i {
+    font-size: 24px;
+    color: white;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive para el control de audio */
+@media (max-width: 768px) {
+    .audio-control {
+        width: 50px;
+        height: 50px;
+        top: 15px;
+        right: 15px;
+    }
+    
+    .audio-control i {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .audio-control {
+        width: 45px;
+        height: 45px;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .audio-control i {
+        font-size: 18px;
+    }
+}
+
+/* Notificación de audio */
+.audio-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 2px solid rgba(255, 31, 143, 0.6);
+    box-shadow: 0 0 40px rgba(255, 31, 143, 0.4);
+    animation: pulseNotification 2s ease-in-out infinite;
+}
+
+.audio-notification-content {
+    text-align: center;
+    color: white;
+}
+
+.audio-notification-content i.fa-music {
+    font-size: 3rem;
+    color: #ff1f8f;
+    margin-bottom: 1rem;
+    animation: musicBounce 1s ease-in-out infinite;
+}
+
+.audio-notification-content p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 31, 143, 0.5);
+}
+
+.audio-enable-btn {
+    background: linear-gradient(45deg, #ff1f8f, #ff4f9f);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 auto;
+    box-shadow: 0 0 20px rgba(255, 31, 143, 0.4);
+}
+
+.audio-enable-btn:hover {
+    background: linear-gradient(45deg, #ff4f9f, #ff1f8f);
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255, 31, 143, 0.6);
+}
+
+@keyframes pulseNotification {
+    0%, 100% {
+        box-shadow: 0 0 40px rgba(255, 31, 143, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 60px rgba(255, 31, 143, 0.8);
+    }
+}
+
+@keyframes musicBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Responsive para notificación */
+@media (max-width: 768px) {
+    .audio-notification {
+        padding: 1.5rem;
+        margin: 0 1rem;
+        width: calc(100% - 2rem);
+        max-width: 400px;
+    }
+    
+    .audio-notification-content p {
+        font-size: 1rem;
+    }
+    
+    .audio-enable-btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
 }
 
 .countdown-container::before {
