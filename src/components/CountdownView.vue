@@ -4,11 +4,8 @@
         <audio 
             ref="backgroundMusic" 
             loop 
-            autoplay
-            muted="false"
             preload="auto"
             @canplay="handleAudioCanPlay"
-            @loadeddata="handleAudioLoaded"
             @error="handleAudioError"
         >
             <source src="@/assets/Download_163_.mp3" type="audio/mpeg">
@@ -18,17 +15,6 @@
         <!-- Control de audio -->
         <div class="audio-control" @click="toggleAudio">
             <i :class="isAudioPlaying ? 'fas fa-volume-up' : 'fas fa-volume-mute'"></i>
-        </div>
-
-        <!-- Notificación de audio (se muestra brevemente) -->
-        <div v-if="!isAudioPlaying" class="audio-notification">
-            <div class="audio-notification-content">
-                <i class="fas fa-music"></i>
-                <p>¡Activa el audio para una mejor experiencia!</p>
-                <button @click="toggleAudio" class="audio-enable-btn">
-                    <i class="fas fa-volume-up"></i> Activar Música
-                </button>
-            </div>
         </div>
 
         <!-- Fondo animado -->
@@ -252,16 +238,10 @@ export default {
 
         const handleAudioCanPlay = () => {
             console.log('Audio listo para reproducir')
-            // Intentar reproducir inmediatamente cuando el audio esté listo
-            playBackgroundMusic()
-        }
-
-        const handleAudioLoaded = () => {
-            console.log('Audio cargado completamente')
-            // Intentar reproducir cuando los datos estén cargados
+            // Intentar reproducir cuando el audio esté listo
             setTimeout(() => {
                 playBackgroundMusic()
-            }, 100)
+            }, 1000) // Esperar 1 segundo después de que la página cargue
         }
 
         const handleAudioError = (error) => {
@@ -282,24 +262,10 @@ export default {
             // Actualizar cada segundo
             countdownInterval = setInterval(updateCountdown, 1000)
 
-            // Intentar reproducir audio inmediatamente
-            setTimeout(() => {
-                playBackgroundMusic()
-            }, 500)
-
-            // Intentar de nuevo después de un poco más de tiempo
-            setTimeout(() => {
-                if (!isAudioPlaying.value) {
-                    playBackgroundMusic()
-                }
-            }, 2000)
-
-            // Agregar listeners para interacción del usuario (como respaldo)
+            // Agregar listeners para interacción del usuario (para audio)
             document.addEventListener('click', handleUserInteraction, { once: true })
             document.addEventListener('keydown', handleUserInteraction, { once: true })
             document.addEventListener('touchstart', handleUserInteraction, { once: true })
-            document.addEventListener('mousemove', handleUserInteraction, { once: true })
-            document.addEventListener('scroll', handleUserInteraction, { once: true })
         })
 
         onUnmounted(() => {
@@ -311,8 +277,6 @@ export default {
             document.removeEventListener('click', handleUserInteraction)
             document.removeEventListener('keydown', handleUserInteraction)
             document.removeEventListener('touchstart', handleUserInteraction)
-            document.removeEventListener('mousemove', handleUserInteraction)
-            document.removeEventListener('scroll', handleUserInteraction)
             
             // Pausar audio
             if (backgroundMusic.value) {
@@ -328,7 +292,6 @@ export default {
             isAudioPlaying,
             toggleAudio,
             handleAudioCanPlay,
-            handleAudioLoaded,
             handleAudioError
         }
     }
@@ -462,101 +425,6 @@ html {
     
     .audio-control i {
         font-size: 18px;
-    }
-}
-
-/* Notificación de audio */
-.audio-notification {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2000;
-    background: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    padding: 2rem;
-    border: 2px solid rgba(255, 31, 143, 0.6);
-    box-shadow: 0 0 40px rgba(255, 31, 143, 0.4);
-    animation: pulseNotification 2s ease-in-out infinite;
-}
-
-.audio-notification-content {
-    text-align: center;
-    color: white;
-}
-
-.audio-notification-content i.fa-music {
-    font-size: 3rem;
-    color: #ff1f8f;
-    margin-bottom: 1rem;
-    animation: musicBounce 1s ease-in-out infinite;
-}
-
-.audio-notification-content p {
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-    color: #fff;
-    text-shadow: 0 0 10px rgba(255, 31, 143, 0.5);
-}
-
-.audio-enable-btn {
-    background: linear-gradient(45deg, #ff1f8f, #ff4f9f);
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 30px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0 auto;
-    box-shadow: 0 0 20px rgba(255, 31, 143, 0.4);
-}
-
-.audio-enable-btn:hover {
-    background: linear-gradient(45deg, #ff4f9f, #ff1f8f);
-    transform: translateY(-2px);
-    box-shadow: 0 0 30px rgba(255, 31, 143, 0.6);
-}
-
-@keyframes pulseNotification {
-    0%, 100% {
-        box-shadow: 0 0 40px rgba(255, 31, 143, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 60px rgba(255, 31, 143, 0.8);
-    }
-}
-
-@keyframes musicBounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-/* Responsive para notificación */
-@media (max-width: 768px) {
-    .audio-notification {
-        padding: 1.5rem;
-        margin: 0 1rem;
-        width: calc(100% - 2rem);
-        max-width: 400px;
-    }
-    
-    .audio-notification-content p {
-        font-size: 1rem;
-    }
-    
-    .audio-enable-btn {
-        padding: 0.8rem 1.5rem;
-        font-size: 1rem;
     }
 }
 
